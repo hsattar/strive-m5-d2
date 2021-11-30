@@ -30,6 +30,13 @@ authorRoutes.post('/', (req, res) => {
     res.status(201).send(newUser)    
 })
 
+authorRoutes.post('/checkEmail', (req, res) => {
+    const authors = JSON.parse(fs.readFileSync(authorsJSON))
+    const email = req.body.email
+    const emailExists = authors.some(author => author.email === email)
+    res.send(emailExists)
+})
+
 authorRoutes.put('/:authorId', (req, res) => {
     const authors = JSON.parse(fs.readFileSync(authorsJSON))
     const authorId = req.params.authorId
