@@ -1,18 +1,1 @@
-[
-    {
-        "name": "John",
-        "surname": "Doe",
-        "id": "156158",
-        "email": "hello@gmail.com",
-        "dob": "01/50/41",
-        "avatar": "https://ui-avatars.com/api/?name=John+Doe"
-    },
-    {
-        "name": "Alice",
-        "surname": "Smith",
-        "id": "165189",
-        "email": "bak@aDSA.COM",
-        "dob": "16/50/74",
-        "avatar": "https://ui-avatars.com/api/?name=Alice+Smith"
-    }
-]
+3
