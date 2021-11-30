@@ -62,7 +62,7 @@ authorRoutes.route('/:authorId')
         fs.writeFileSync(authorsJSON, JSON.stringify(remainingAuthors))
         res.status(204).send()
     })
-    
+
 
 authorRoutes.post('/checkEmail', (req, res) => {
     const authors = JSON.parse(fs.readFileSync(authorsJSON))
