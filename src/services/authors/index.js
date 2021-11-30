@@ -9,23 +9,26 @@ const authorRoutes = express.Router()
 const currentFilePath = fileURLToPath(import.meta.url)
 const currentFolder = dirname(currentFilePath)
 const authorsJSON = join(currentFolder, 'authors.json')
-const authors = JSON.parse(fs.readFileSync(authorsJSON))
 
 authorRoutes.get('/', (req, res) => {
+    const authors = JSON.parse(fs.readFileSync(authorsJSON))
     res.send(authors)
 })
 
 authorRoutes.get('/:authorId', (req, res) => {
+    const authors = JSON.parse(fs.readFileSync(authorsJSON))
     const authorId = req.params.authorId
     const singleAuthor = authors.find(author => author.id === authorId)
     res.send(singleAuthor)
 })
 
 authorRoutes.post('/', (req, res) => {
+    const authors = JSON.parse(fs.readFileSync(authorsJSON))
     const receivedInput = req.body
     const newUser = {...receivedInput, id: uuidv4()}
-    const updatedAuthors = authors.push(newUser)
-    fs.writeFileSync(authorsJSON, JSON.stringify(updatedAuthors))
+    console.log(newUser)
+    authors.push(newUser)
+    fs.writeFileSync(authorsJSON, JSON.stringify(authors))
     res.status(201).send(newUser)    
 })
 
