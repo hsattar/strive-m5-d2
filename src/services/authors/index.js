@@ -14,19 +14,21 @@ authorRoutes.get('/', (req, res) => {
     res.send(authors)
 })
 
-authorRoutes.get('/:blogId', (req, res) => {
-    res.send('get id')
+authorRoutes.get('/:authorId', (req, res) => {
+    const authorId = req.params.authorId
+    const singleAuthor = authors.find(author => author.id === authorId)
+    res.send(singleAuthor)
 })
 
 authorRoutes.post('/', (req, res) => {
     res.send('post')    
 })
 
-authorRoutes.put('/:blogId', (req, res) => {
+authorRoutes.put('/:authorId', (req, res) => {
     res.send('put')
 })
 
-authorRoutes.delete('/:blogId', (req, res) => {
+authorRoutes.delete('/:authorId', (req, res) => {
     res.send('delete')
 })
 
