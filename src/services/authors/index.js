@@ -24,15 +24,20 @@ authorRoutes.get('/:authorId', (req, res) => {
 
 authorRoutes.post('/', (req, res) => {
     const authors = JSON.parse(fs.readFileSync(authorsJSON))
-    const receivedInput = req.body
-    const newUser = {...receivedInput, id: uuidv4()}
+    const newUser = {...req.body, id: uuidv4()}
     authors.push(newUser)
     fs.writeFileSync(authorsJSON, JSON.stringify(authors))
     res.status(201).send(newUser)    
 })
 
 authorRoutes.put('/:authorId', (req, res) => {
-    res.send('put')
+    const authors = JSON.parse(fs.readFileSync(authorsJSON))
+    const authorId = req.params.authorId
+    const index = authors.findIndex(author => author.id === authorId)
+    authors[index] = {...authors[index], ...req.body}
+    const updatedDetails = authors[index]
+    fs.writeFileSync(authorsJSON, JSON.stringify(authors))
+    res.send(updatedDetails)
 })
 
 authorRoutes.delete('/:authorId', (req, res) => {
