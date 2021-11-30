@@ -26,7 +26,6 @@ authorRoutes.post('/', (req, res) => {
     const authors = JSON.parse(fs.readFileSync(authorsJSON))
     const receivedInput = req.body
     const newUser = {...receivedInput, id: uuidv4()}
-    console.log(newUser)
     authors.push(newUser)
     fs.writeFileSync(authorsJSON, JSON.stringify(authors))
     res.status(201).send(newUser)    
@@ -37,7 +36,11 @@ authorRoutes.put('/:authorId', (req, res) => {
 })
 
 authorRoutes.delete('/:authorId', (req, res) => {
-    res.send('delete')
+    const authors = JSON.parse(fs.readFileSync(authorsJSON))
+    const authorId = req.params.authorId
+    const remainingAuthors = authors.filter(author => author.id !== authorId)
+    fs.writeFileSync(authorsJSON, JSON.stringify(remainingAuthors))
+    res.status(204).send()
 })
 
 export default authorRoutes
