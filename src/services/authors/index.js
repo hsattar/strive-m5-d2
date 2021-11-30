@@ -24,6 +24,9 @@ authorRoutes.get('/:authorId', (req, res) => {
 
 authorRoutes.post('/', (req, res) => {
     const authors = JSON.parse(fs.readFileSync(authorsJSON))
+    const emailExists = authors.some(author => author.email === req.body.email)
+    if (emailExists) return res.status(400).send('A user with this email already exists')
+    
     const newUser = {...req.body, id: uuidv4()}
     authors.push(newUser)
     fs.writeFileSync(authorsJSON, JSON.stringify(authors))
