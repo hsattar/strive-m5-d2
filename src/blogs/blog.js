@@ -35,9 +35,14 @@ blogRoutes.route('/')
             const numberOfWords = blogWords.length
             const readingTime = Math.ceil(numberOfWords / averageReadingSpeed)
             const readingUnit = readingTime === 1 ? 'minute' : 'minutes'
+            const authorNames = req.body.author.name.split(' ')
             const newBlog = {
                 id: uuidv4(),
                 ...req.body,
+                author: {
+                    name: req.body.author.name,
+                    avatar: `https://ui-avatars.com/api/?name=${authorNames[0]}+${authorNames[1]}`
+                },
                 readTime: {
                     value: readingTime,
                     unit: readingUnit
@@ -70,9 +75,24 @@ blogRoutes.route('/:blogId')
             const blogs = getBlogs()
             const index = blogs.findIndex(blog => blog.id === req.params.blogId)
             if (index === -1) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found. Cannot Edit Blog That Doesn't Exist.`))
+            const blogContent = req.body.content || blogs[index].content
+            const blogWords = blogContent.split(' ')
+            const numberOfWords = blogWords.length
+            const readingTime = Math.ceil(numberOfWords / averageReadingSpeed)
+            const readingUnit = readingTime === 1 ? 'minute' : 'minutes'
+            const authorName = req.body.author.name || blogs[index].author.name
+            const authorNames = authorName.split(' ')
             blogs[index] = {
                 ...blogs[index],
                 ...req.body,
+                author: {
+                    name: req.body.author.name,
+                    avatar: `https://ui-avatars.com/api/?name=${authorNames[0]}+${authorNames[1]}`
+                },
+                readTime: {
+                    value: readingTime,
+                    unit: readingUnit
+                },
                 updatedAt: new Date()
             }
             writeBlogs(blogs)
