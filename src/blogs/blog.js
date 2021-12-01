@@ -18,7 +18,10 @@ blogRoutes.route('/')
     .get((req, res, next) => {
         try {
             const blogs = getBlogs()
-            res.send(blogs)    
+            console.log(req.query.title)
+            if (!req.query.title) return res.send(blogs)  
+            const filteredBlogs = blogs.filter(blog => blog.title.toLowerCase().includes(req.query.title.toLowerCase()))
+            res.send(filteredBlogs)  
         } catch (error) {
             next(error)
         }
