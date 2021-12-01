@@ -1,15 +1,5 @@
 [
   {
-    "id": "82a782dd-7388-44d9-a1b7-bd623578c5d9",
-    "name": "John",
-    "surname": "Medhurst",
-    "email": "Sylvia_Bahringer1@gmail.com",
-    "dob": "Fri Mar 12 2021 18:19:28 GMT+0000 (Greenwich Mean Time)",
-    "avatar": "https://ui-avatars.com/api/?name=John+undefined",
-    "createdAt": "2021-11-30T19:23:59.723Z",
-    "updatedAt": "2021-11-30T19:28:46.967Z"
-  },
-  {
     "id": "bd7cee97-9f9b-438c-82f9-724a215d4700",
     "name": "Narciso",
     "surname": "Ward",
@@ -21,12 +11,22 @@
   },
   {
     "id": "4ca8fdba-5c97-4de5-9587-573e10606c2a",
-    "name": "Elwin",
+    "name": "Eric",
     "surname": "Schulist",
     "email": "Joy35@hotmail.com",
     "dob": "Wed Sep 29 2021 15:34:07 GMT+0100 (British Summer Time)",
-    "avatar": "https://ui-avatars.com/api/?name=Elwin+Schulist",
+    "avatar": "https://ui-avatars.com/api/?name=Eric+Schulist",
     "createdAt": "2021-11-30T19:25:26.905Z",
-    "updatedAt": "2021-11-30T19:25:26.905Z"
+    "updatedAt": "2021-12-01T11:22:51.784Z"
+  },
+  {
+    "id": "7f6ca4b6-9efc-4fc1-8e34-45aff31a79ed",
+    "name": "Donato",
+    "surname": "Kiehn",
+    "email": "Vincent68@gmail.com",
+    "dob": "Tue Nov 16 2021 03:11:07 GMT+0000 (Greenwich Mean Time)",
+    "avatar": "https://ui-avatars.com/api/?name=Donato+Kiehn",
+    "createdAt": "2021-12-01T11:18:57.460Z",
+    "updatedAt": "2021-12-01T11:18:57.460Z"
   }
 ]
