@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
+import { validationResult } from 'express-validator'
+import { blogsBodyValidator } from '../middlewares/validation.js'
 
 const blogRoutes = express.Router()
 
@@ -13,7 +15,7 @@ const getBlogs = () => JSON.parse(fs.readFileSync(blogsJSONPath))
 const writeBlogs = content => fs.writeFileSync(blogsJSONPath, JSON.stringify(content))
 
 blogRoutes.route('/')
-    .get((req, res) => {
+    .get((req, res, next) => {
         try {
             const blogs = getBlogs()
             res.send(blogs)    
@@ -21,8 +23,10 @@ blogRoutes.route('/')
             next(error)
         }
     })
-    .post((req, res) => {
+    .post(blogsBodyValidator, (req, res, next) => {
         try {
+            const errors = validationResult(req)
+            if (!errors.isEmpty()) return next(createHttpError(400, { errors }))
             const blogs = getBlogs()
             const newBlog = {
                 id: uuidv4(),
