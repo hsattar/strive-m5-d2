@@ -13,12 +13,12 @@ const blogsJSONPath = join(dirname(fileURLToPath(import.meta.url)), 'blogs.json'
 
 const getBlogs = () => JSON.parse(fs.readFileSync(blogsJSONPath))
 const writeBlogs = content => fs.writeFileSync(blogsJSONPath, JSON.stringify(content))
+const averageReadingSpeed = 250
 
 blogRoutes.route('/')
     .get((req, res, next) => {
         try {
             const blogs = getBlogs()
-            console.log(req.query.title)
             if (!req.query.title) return res.send(blogs)  
             const filteredBlogs = blogs.filter(blog => blog.title.toLowerCase().includes(req.query.title.toLowerCase()))
             res.send(filteredBlogs)  
@@ -31,9 +31,17 @@ blogRoutes.route('/')
             const errors = validationResult(req)
             if (!errors.isEmpty()) return next(createHttpError(400, { errors }))
             const blogs = getBlogs()
+            const blogWords = req.body.content.split(' ')
+            const numberOfWords = blogWords.length
+            const readingTime = Math.ceil(numberOfWords / averageReadingSpeed)
+            const readingUnit = readingTime === 1 ? 'minute' : 'minutes'
             const newBlog = {
                 id: uuidv4(),
                 ...req.body,
+                readTime: {
+                    value: readingTime,
+                    unit: readingUnit
+                },
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -42,6 +50,7 @@ blogRoutes.route('/')
             res.status(201).send(newBlog)
         } catch (error) {
             next(error)
+            console.log(error)
         }
     })
 
