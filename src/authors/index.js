@@ -3,14 +3,17 @@ import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import createHttpError from 'http-errors'
 
 const authorRoutes = express.Router()
 
 const currentFilePath = fileURLToPath(import.meta.url)
 const currentFolder = dirname(currentFilePath)
 const authorsJSONPath = join(currentFolder, 'authors.json')
+const blogsJSONPath = join(currentFolder, '../blogs/blogs.json')
 
 const getAuthors = () => JSON.parse(fs.readFileSync(authorsJSONPath))
+const getBlogs = () => JSON.parse(fs.readFileSync(blogsJSONPath))
 const writeAuthors = content => fs.writeFileSync(authorsJSONPath, JSON.stringify(content))
 
 // DEFAULT ROUTE - GET, POST
@@ -65,6 +68,21 @@ authorRoutes.route('/:authorId')
         writeAuthors(remainingAuthors)
         res.status(204).send()
     })
+
+
+authorRoutes.get('/:authorId/blogs', (req, res, next) => {
+    try {
+        const authors = getAuthors()
+        const blogs = getBlogs()
+        const singleAuthor = authors.find(author => author.id === req.params.authorId)
+        const authorName = `${singleAuthor.name} ${singleAuthor.surname}`
+        const authorBlogs = blogs.filter(blog => blog.author.name.toLowerCase() === authorName.toLowerCase())
+        if (authorBlogs.length < 1) return next(createHttpError(404, 'No Blogs Found For This Author.'))
+        res.send(authorBlogs)
+    } catch (error) {
+        next(error)
+    }
+})
 
 
 authorRoutes.post('/checkEmail', (req, res) => {
