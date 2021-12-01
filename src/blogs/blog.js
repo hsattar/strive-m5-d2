@@ -21,7 +21,8 @@ blogRoutes.route('/')
         const newBlog = {
             id: uuidv4(),
             ...req.body,
-            createdAt: new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
         }
         blogs.push(newBlog)
         writeBlogs(blogs)
@@ -35,7 +36,15 @@ blogRoutes.route('/:blogId')
         res.send(blog)
     })
     .put((req, res) => {
-
+        const blogs = getBlogs()
+        const index = blogs.findIndex(blog => blog.id === req.params.blogId)
+        blogs[index] = {
+            ...blogs[index],
+            ...req.body,
+            updatedAt: new Date()
+        }
+        writeBlogs(blogs)
+        res.send(blogs[index])
     })
     .delete((req, res) => {
         const blogs = getBlogs()
