@@ -13,7 +13,8 @@ const writeBlogs = content => fs.writeFileSync(blogsJSONPath, JSON.stringify(con
 
 blogRoutes.route('/')
     .get((req, res) => {
-
+        const blogs = getBlogs()
+        res.send(blogs)
     })
     .post((req, res) => {
         const blogs = getBlogs()
@@ -29,13 +30,18 @@ blogRoutes.route('/')
 
 blogRoutes.route('/:blogId')
     .get((req, res) => {
-
+        const blogs = getBlogs()
+        const blog = blogs.find(blog => blog.id === req.params.blogId)
+        res.send(blog)
     })
     .put((req, res) => {
 
     })
     .delete((req, res) => {
-
+        const blogs = getBlogs()
+        const remainingBlogs = blogs.filter(blog => blog.id !== req.params.blogId)
+        writeBlogs(remainingBlogs)
+        res.status(204).send()
     })
 
 export default blogRoutes
