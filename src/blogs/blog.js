@@ -3,6 +3,7 @@ import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import createHttpError from 'http-errors'
 
 const blogRoutes = express.Router()
 
@@ -13,44 +14,65 @@ const writeBlogs = content => fs.writeFileSync(blogsJSONPath, JSON.stringify(con
 
 blogRoutes.route('/')
     .get((req, res) => {
-        const blogs = getBlogs()
-        res.send(blogs)
+        try {
+            const blogs = getBlogs()
+            res.send(blogs)    
+        } catch (error) {
+            next(error)
+        }
     })
     .post((req, res) => {
-        const blogs = getBlogs()
-        const newBlog = {
-            id: uuidv4(),
-            ...req.body,
-            createdAt: new Date(),
-            updatedAt: new Date()
+        try {
+            const blogs = getBlogs()
+            const newBlog = {
+                id: uuidv4(),
+                ...req.body,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+            blogs.push(newBlog)
+            writeBlogs(blogs)
+            res.status(201).send(newBlog)
+        } catch (error) {
+            next(error)
         }
-        blogs.push(newBlog)
-        writeBlogs(blogs)
-        res.status(201).send(newBlog)
     })
 
 blogRoutes.route('/:blogId')
-    .get((req, res) => {
-        const blogs = getBlogs()
-        const blog = blogs.find(blog => blog.id === req.params.blogId)
-        res.send(blog)
-    })
-    .put((req, res) => {
-        const blogs = getBlogs()
-        const index = blogs.findIndex(blog => blog.id === req.params.blogId)
-        blogs[index] = {
-            ...blogs[index],
-            ...req.body,
-            updatedAt: new Date()
+    .get((req, res, next) => {
+        try {
+            const blogs = getBlogs()
+            const blog = blogs.find(blog => blog.id === req.params.blogId)
+            if (blog) res.send(blog)
+            next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found`))
+        } catch (error) {
+            next(error)
         }
-        writeBlogs(blogs)
-        res.send(blogs[index])
     })
-    .delete((req, res) => {
-        const blogs = getBlogs()
-        const remainingBlogs = blogs.filter(blog => blog.id !== req.params.blogId)
-        writeBlogs(remainingBlogs)
-        res.status(204).send()
+    .put((req, res, next) => {
+        try {
+            const blogs = getBlogs()
+            const index = blogs.findIndex(blog => blog.id === req.params.blogId)
+            blogs[index] = {
+                ...blogs[index],
+                ...req.body,
+                updatedAt: new Date()
+            }
+            writeBlogs(blogs)
+            res.send(blogs[index])
+        } catch (error) {
+            next(error)
+        }
+    })
+    .delete((req, res, next) => {
+        try {
+            const blogs = getBlogs()
+            const remainingBlogs = blogs.filter(blog => blog.id !== req.params.blogId)
+            writeBlogs(remainingBlogs)
+            res.status(204).send()
+        } catch (error) {
+            next(error)
+        }
     })
 
 export default blogRoutes
