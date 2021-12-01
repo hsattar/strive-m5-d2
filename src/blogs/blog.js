@@ -43,8 +43,8 @@ blogRoutes.route('/:blogId')
         try {
             const blogs = getBlogs()
             const blog = blogs.find(blog => blog.id === req.params.blogId)
-            if (blog) res.send(blog)
-            next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found`))
+            if (blog) return res.send(blog)
+            next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found.`))
         } catch (error) {
             next(error)
         }
@@ -53,6 +53,7 @@ blogRoutes.route('/:blogId')
         try {
             const blogs = getBlogs()
             const index = blogs.findIndex(blog => blog.id === req.params.blogId)
+            if (index === -1) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found. Cannot Edit Blog That Doesn't Exist.`))
             blogs[index] = {
                 ...blogs[index],
                 ...req.body,
@@ -67,6 +68,8 @@ blogRoutes.route('/:blogId')
     .delete((req, res, next) => {
         try {
             const blogs = getBlogs()
+            const index = blogs.findIndex(blog => blog.id === req.params.blogId)
+            if (index === -1) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found. Cannot Delete Blog That Doesn't Exist.`))
             const remainingBlogs = blogs.filter(blog => blog.id !== req.params.blogId)
             writeBlogs(remainingBlogs)
             res.status(204).send()
