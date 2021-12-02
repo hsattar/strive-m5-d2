@@ -1,7 +1,8 @@
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
-import { getAuthors, writeAuthors, getBlogs } from '../functions/fs-funcs.js'
+import { getAuthors, writeAuthors, getBlogs, createAuthorAvatar } from '../functions/fs-funcs.js'
+import multer from 'multer'
 
 const authorRoutes = express.Router()
 
@@ -68,6 +69,18 @@ authorRoutes.get('/:authorId/blogs', async (req, res, next) => {
         const authorBlogs = blogs.filter(blog => blog.author.name.toLowerCase() === authorName.toLowerCase())
         if (authorBlogs.length < 1) return next(createHttpError(404, 'No Blogs Found For This Author.'))
         res.send(authorBlogs)
+    } catch (error) {
+        next(error)
+    }
+})
+
+authorRoutes.post('/:authorId/uploadAvatar', multer().single('avatar'), (req, res, next) => {
+    try {
+        const originalFileName = req.file.originalname.split('.')
+        originalFileName[0] = req.params.authorId
+        const newFileName = originalFileName.join('.')
+        createAuthorAvatar(newFileName, req.file.buffer)
+        res.send('OK')
     } catch (error) {
         next(error)
     }
