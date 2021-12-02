@@ -110,13 +110,17 @@ blogRoutes.route('/:blogId')
     })
 
 
-blogRoutes.post('/:blogId/uploadCover', multer().single('cover'), (req, res, next) => {
+blogRoutes.patch('/:blogId/uploadCover', multer().single('cover'), async (req, res, next) => {
     try {
         const originalFileName = req.file.originalname.split('.')
         originalFileName[0] = req.params.blogId
         const newFileName = originalFileName.join('.')
         createBlogCover(newFileName, req.file.buffer)
-        res.send('OK')
+        const blogs = await getBlogs()
+        const index = blogs.findIndex(blog => blog.id === req.params.blogId)
+        blogs[index] = {...blogs[index], cover: `http://127.0.0.1:3001/blog-covers/${newFileName}`}
+        await writeBlogs(blogs)
+        res.send(blogs[index])
     } catch (error) {
         next(error)
         console.log(error)

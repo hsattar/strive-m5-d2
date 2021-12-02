@@ -74,13 +74,17 @@ authorRoutes.get('/:authorId/blogs', async (req, res, next) => {
     }
 })
 
-authorRoutes.post('/:authorId/uploadAvatar', multer().single('avatar'), (req, res, next) => {
+authorRoutes.patch('/:authorId/uploadAvatar', multer().single('avatar'), async (req, res, next) => {
     try {
         const originalFileName = req.file.originalname.split('.')
         originalFileName[0] = req.params.authorId
         const newFileName = originalFileName.join('.')
         createAuthorAvatar(newFileName, req.file.buffer)
-        res.send('OK')
+        const authors = await getAuthors()
+        const index = authors.findIndex(author => author.id === req.params.authorId)
+        authors[index] = {...authors[index], avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}
+        await writeAuthors(authors)
+        res.send(authors[index])
     } catch (error) {
         next(error)
     }
