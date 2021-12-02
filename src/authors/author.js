@@ -1,7 +1,7 @@
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
-import { getAuthors, writeAuthors, getBlogs, createAuthorAvatar } from '../functions/fs-funcs.js'
+import { getAuthors, writeAuthors, getBlogs, createAuthorAvatar, writeBlogs } from '../functions/fs-funcs.js'
 import multer from 'multer'
 
 const authorRoutes = express.Router()
@@ -20,6 +20,7 @@ authorRoutes.route('/')
             id: uuidv4(), 
             ...req.body, 
             avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
+            comments: [],
             createdAt: new Date(),
             updatedAt: new Date()
         }
@@ -84,9 +85,26 @@ authorRoutes.patch('/:authorId/uploadAvatar', multer().single('avatar'), async (
         const index = authors.findIndex(author => author.id === req.params.authorId)
         authors[index] = {...authors[index], avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}
         await writeAuthors(authors)
+        const blogs = await getBlogs()
+        const author = authors.find(author => author.id === req.params.authorId)
+        const authorName = `${author.name} ${author.surname}`
+        const authorBlogs = blogs.filter(blog => blog.author.name === authorName)
+        if (authorBlogs.length === 0) return res.send(authors[index])
+        if (authorBlogs.length === 1) {
+            // authorBlogs[0].author.avatar = `http://127.0.0.1:3001/author-avatars/${newFileName}`
+            const index = blogs.findIndex(blog => blog.id === authorBlogs[0].id)
+            blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
+        }
+        // if (authorBlogs.length > 1) authorBlogs.forEach(blog => {
+        //     // blog.author.avatar = `http://127.0.0.1:3001/author-avatars/${newFileName}`
+        //     const index = blogs.findIndex(blog => blog.id === authorBlogs[0].id)
+        //     blogs[index] = {...blogs[index], author: {...author, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
+        // })
+        await writeBlogs(blogs)
         res.send(authors[index])
     } catch (error) {
         next(error)
+        console.log(error)
     }
 })
 
