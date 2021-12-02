@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
 import { blogsBodyValidator } from '../middlewares/validation.js'
-import { getBlogs, writeBlogs } from '../functions/fs-funcs.js'
+import { getBlogs, writeBlogs, createBlogCover } from '../functions/fs-funcs.js'
+import multer from 'multer'
 
 const blogRoutes = express.Router()
 
@@ -107,5 +108,19 @@ blogRoutes.route('/:blogId')
             next(error)
         }
     })
+
+
+blogRoutes.post('/:blogId/uploadCover', multer().single('cover'), (req, res, next) => {
+    try {
+        const originalFileName = req.file.originalname.split('.')
+        originalFileName[0] = req.params.blogId
+        const newFileName = originalFileName.join('.')
+        createBlogCover(newFileName, req.file.buffer)
+        res.send('OK')
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+})
 
 export default blogRoutes
