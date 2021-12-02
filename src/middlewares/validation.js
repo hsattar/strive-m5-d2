@@ -7,3 +7,8 @@ export const blogsBodyValidator = [
     body('author.name').exists().isLength({min: 1}).withMessage('You Must Include An Author Name'),
     body('content').exists().isLength({min: 1}).withMessage('You Must Include Some Content')
 ]
+
+export const blogCommentValidator = [
+    body('author').exists().isLength({min: 1}).withMessage('You Must Include An Author Name'),
+    body('text').exists().isLength({min: 1}).withMessage('You Must Include Some Text')
+]

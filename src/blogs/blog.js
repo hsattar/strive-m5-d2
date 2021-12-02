@@ -2,7 +2,7 @@ import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
-import { blogsBodyValidator } from '../middlewares/validation.js'
+import { blogsBodyValidator, blogCommentValidator } from '../middlewares/validation.js'
 import { getBlogs, writeBlogs, createBlogCover } from '../functions/fs-funcs.js'
 import multer from 'multer'
 
@@ -138,8 +138,10 @@ blogRoutes.route('/:blogId/comments')
             next(error)
         }
     })
-    .post(async (req, res, next) => {
+    .post(blogCommentValidator, async (req, res, next) => {
         try {
+            const errors = validationResult(req)
+            if (!errors.isEmpty()) return next(createHttpError(400, { errors }))
             const blogs = await getBlogs()
             const index = blogs.findIndex(blog => blog.id === req.params.blogId)
             if (index === -1) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found.`))
