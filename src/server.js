@@ -1,5 +1,5 @@
 import express from 'express'
-import authorRoutes from './authors/index.js'
+import authorRoutes from './authors/author.js'
 import blogRoutes from './blogs/blog.js'
 import cors from 'cors'
 import { badRequest, blogNotFound, genericError } from './middlewares/errorHandlers.js'

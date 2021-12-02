@@ -1,24 +1,18 @@
 import express from 'express'
-import fs from 'fs'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
 import { blogsBodyValidator } from '../middlewares/validation.js'
+import { getBlogs, writeBlogs } from '../functions/fs-funcs.js'
 
 const blogRoutes = express.Router()
 
-const blogsJSONPath = join(dirname(fileURLToPath(import.meta.url)), 'blogs.json')
-
-const getBlogs = () => JSON.parse(fs.readFileSync(blogsJSONPath))
-const writeBlogs = content => fs.writeFileSync(blogsJSONPath, JSON.stringify(content))
 const averageReadingSpeed = 250
 
 blogRoutes.route('/')
-    .get((req, res, next) => {
+    .get( async (req, res, next) => {
         try {
-            const blogs = getBlogs()
+            const blogs = await getBlogs()
             if (!req.query.title) return res.send(blogs)  
             const filteredBlogs = blogs.filter(blog => blog.title.toLowerCase().includes(req.query.title.toLowerCase()))
             res.send(filteredBlogs)  
@@ -26,11 +20,11 @@ blogRoutes.route('/')
             next(error)
         }
     })
-    .post(blogsBodyValidator, (req, res, next) => {
+    .post(blogsBodyValidator,  async (req, res, next) => {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) return next(createHttpError(400, { errors }))
-            const blogs = getBlogs()
+            const blogs = await getBlogs()
             const blogWords = req.body.content.split(' ')
             const numberOfWords = blogWords.length
             const readingTime = Math.ceil(numberOfWords / averageReadingSpeed)
@@ -51,7 +45,7 @@ blogRoutes.route('/')
                 updatedAt: new Date()
             }
             blogs.push(newBlog)
-            writeBlogs(blogs)
+            await writeBlogs(blogs)
             res.status(201).send(newBlog)
         } catch (error) {
             next(error)
@@ -60,9 +54,9 @@ blogRoutes.route('/')
     })
 
 blogRoutes.route('/:blogId')
-    .get((req, res, next) => {
+    .get( async (req, res, next) => {
         try {
-            const blogs = getBlogs()
+            const blogs = await getBlogs()
             const blog = blogs.find(blog => blog.id === req.params.blogId)
             if (blog) return res.send(blog)
             next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found.`))
@@ -70,9 +64,9 @@ blogRoutes.route('/:blogId')
             next(error)
         }
     })
-    .put((req, res, next) => {
+    .put( async (req, res, next) => {
         try {
-            const blogs = getBlogs()
+            const blogs = await getBlogs()
             const index = blogs.findIndex(blog => blog.id === req.params.blogId)
             if (index === -1) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found. Cannot Edit Blog That Doesn't Exist.`))
             const blogContent = req.body.content || blogs[index].content
@@ -95,19 +89,19 @@ blogRoutes.route('/:blogId')
                 },
                 updatedAt: new Date()
             }
-            writeBlogs(blogs)
+            await writeBlogs(blogs)
             res.send(blogs[index])
         } catch (error) {
             next(error)
         }
     })
-    .delete((req, res, next) => {
+    .delete( async (req, res, next) => {
         try {
-            const blogs = getBlogs()
+            const blogs = await getBlogs()
             const index = blogs.findIndex(blog => blog.id === req.params.blogId)
             if (index === -1) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found. Cannot Delete Blog That Doesn't Exist.`))
             const remainingBlogs = blogs.filter(blog => blog.id !== req.params.blogId)
-            writeBlogs(remainingBlogs)
+            await writeBlogs(remainingBlogs)
             res.status(204).send()
         } catch (error) {
             next(error)
