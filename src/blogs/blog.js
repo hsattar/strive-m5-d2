@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
 import { blogsBodyValidator, blogCommentValidator } from '../middlewares/validation.js'
-import { getBlogs, writeBlogs, createBlogCover } from '../functions/fs-funcs.js'
+import { getBlogs, writeBlogs, createBlogCover, getAuthors } from '../functions/fs-funcs.js'
 import multer from 'multer'
 
 const blogRoutes = express.Router()
@@ -31,12 +31,16 @@ blogRoutes.route('/')
             const readingTime = Math.ceil(numberOfWords / averageReadingSpeed)
             const readingUnit = readingTime === 1 ? 'minute' : 'minutes'
             const authorNames = req.body.author.name.split(' ')
+            const authors = await getAuthors()
+            const authorExists = authors.find(author => req.body.author.name === `${author.name} ${author.surname}`)
+            let authorAvatar = null
+            if (authorExists) authorAvatar = authorExists.avatar
             const newBlog = {
                 id: uuidv4(),
                 ...req.body,
                 author: {
                     name: req.body.author.name,
-                    avatar: `https://ui-avatars.com/api/?name=${authorNames[0]}+${authorNames[1]}`
+                    avatar: authorAvatar || `https://ui-avatars.com/api/?name=${authorNames[0]}+${authorNames[1]}`
                 },
                 readTime: {
                     value: readingTime,
