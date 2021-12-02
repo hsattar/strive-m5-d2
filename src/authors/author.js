@@ -19,8 +19,7 @@ authorRoutes.route('/')
         const newUser = {
             id: uuidv4(), 
             ...req.body, 
-            avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
-            comments: [],
+            avatar: req.body.avatar || `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
             createdAt: new Date(),
             updatedAt: new Date()
         }

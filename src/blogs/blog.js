@@ -46,6 +46,7 @@ blogRoutes.route('/')
                     value: readingTime,
                     unit: readingUnit
                 },
+                comments: [],
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
