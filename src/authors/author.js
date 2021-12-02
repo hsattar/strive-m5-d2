@@ -91,15 +91,15 @@ authorRoutes.patch('/:authorId/uploadAvatar', multer().single('avatar'), async (
         const authorBlogs = blogs.filter(blog => blog.author.name === authorName)
         if (authorBlogs.length === 0) return res.send(authors[index])
         if (authorBlogs.length === 1) {
-            // authorBlogs[0].author.avatar = `http://127.0.0.1:3001/author-avatars/${newFileName}`
             const index = blogs.findIndex(blog => blog.id === authorBlogs[0].id)
             blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
         }
-        // if (authorBlogs.length > 1) authorBlogs.forEach(blog => {
-        //     // blog.author.avatar = `http://127.0.0.1:3001/author-avatars/${newFileName}`
-        //     const index = blogs.findIndex(blog => blog.id === authorBlogs[0].id)
-        //     blogs[index] = {...blogs[index], author: {...author, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
-        // })
+        if (authorBlogs.length > 1) {
+            for (let i = 0; i < authorBlogs.length; i++) {
+                const index = blogs.findIndex(blog => blog.id === authorBlogs[i].id)
+                blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
+            }
+        }
         await writeBlogs(blogs)
         res.send(authors[index])
     } catch (error) {
