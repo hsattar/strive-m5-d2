@@ -127,4 +127,15 @@ blogRoutes.patch('/:blogId/uploadCover', multer().single('cover'), async (req, r
     }
 })
 
+blogRoutes.get('/:blogId/comments', async (req, res, next) => {
+    try {
+        const blogs = await getBlogs()
+        const blog = blogs.find(blog => blog.id === req.params.blogId)
+        if (!blog) return next(createHttpError(404, `Blog With ID ${req.params.blogId} Not Found.`))
+        res.send(blog.comments)
+    } catch (error) {
+        next(error)
+    }
+})
+
 export default blogRoutes
