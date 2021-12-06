@@ -96,12 +96,12 @@ authorRoutes.patch('/:authorId/uploadAvatar', multer({ storage }).single('avatar
         if (authorBlogs.length === 0) return res.send(authors[index])
         if (authorBlogs.length === 1) {
             const index = blogs.findIndex(blog => blog.id === authorBlogs[0].id)
-            blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
+            blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `${req.file.path}`}}
         }
         if (authorBlogs.length > 1) {
             for (let i = 0; i < authorBlogs.length; i++) {
                 const index = blogs.findIndex(blog => blog.id === authorBlogs[i].id)
-                blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}}
+                blogs[index] = {...blogs[index], author: { name: `${authorName}`, avatar: `${req.file.path}`}}
             }
         }
         await writeBlogs(blogs)
