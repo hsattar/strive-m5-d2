@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
 import { getAuthors, writeAuthors, getBlogs, createAuthorAvatar, writeBlogs } from '../functions/fs-funcs.js'
 import multer from 'multer'
+import { v2 as cloudinary } from 'cloudinary'
+import { CloudinaryStorage } from 'multer-storage-cloudinary'
 
 const authorRoutes = express.Router()
 
@@ -74,15 +76,18 @@ authorRoutes.get('/:authorId/blogs', async (req, res, next) => {
     }
 })
 
-authorRoutes.patch('/:authorId/uploadAvatar', multer().single('avatar'), async (req, res, next) => {
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'strive-blogs/author-avatars'
+    }
+})
+
+authorRoutes.patch('/:authorId/uploadAvatar', multer({ storage }).single('avatar'), async (req, res, next) => {
     try {
-        const originalFileName = req.file.originalname.split('.')
-        originalFileName[0] = req.params.authorId
-        const newFileName = originalFileName.join('.')
-        createAuthorAvatar(newFileName, req.file.buffer)
         const authors = await getAuthors()
         const index = authors.findIndex(author => author.id === req.params.authorId)
-        authors[index] = {...authors[index], avatar: `http://127.0.0.1:3001/author-avatars/${newFileName}`}
+        authors[index] = {...authors[index], avatar: `${req.file.path}`}
         await writeAuthors(authors)
         const blogs = await getBlogs()
         const author = authors.find(author => author.id === req.params.authorId)
