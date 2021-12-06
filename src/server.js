@@ -7,9 +7,21 @@ import { publicFolderPath } from './functions/fs-funcs.js'
 import listEndpoints from 'express-list-endpoints'
 
 const server = express()
-const port = 3001
+const port = process.env.PORT
 
-server.use(cors())
+const whiteList = [process.env.FE_LOCAL_URL, process.env.FE_REMOTE_URL]
+
+const corsOptions = {
+    origin: (origin, next) => {
+        if (!origin || whiteList.indexOf(origin) !== -1) {
+            next(null, true)
+        } else {
+            next(new Error('CORS ERROR'))
+        }
+    }
+}
+
+server.use(cors(corsOptions))
 server.use(express.json())
 server.use(express.static(publicFolderPath))
 
