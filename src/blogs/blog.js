@@ -5,6 +5,8 @@ import { validationResult } from 'express-validator'
 import { blogsBodyValidator, blogCommentValidator } from '../middlewares/validation.js'
 import { getBlogs, writeBlogs, createBlogCover, getAuthors } from '../functions/fs-funcs.js'
 import multer from 'multer'
+import { v2 as cloudinary } from 'cloudinary'
+import { CloudinaryStorage } from 'multer-storage-cloudinary'
 
 const blogRoutes = express.Router()
 
@@ -114,16 +116,23 @@ blogRoutes.route('/:blogId')
         }
     })
 
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'strive-blogs/blog-covers'
+    }
+})
 
-blogRoutes.patch('/:blogId/uploadCover', multer().single('cover'), async (req, res, next) => {
+
+blogRoutes.patch('/:blogId/uploadCover', multer({ storage }).single('cover'), async (req, res, next) => {
     try {
-        const originalFileName = req.file.originalname.split('.')
-        originalFileName[0] = req.params.blogId
-        const newFileName = originalFileName.join('.')
-        createBlogCover(newFileName, req.file.buffer)
+        // const originalFileName = req.file.originalname.split('.')
+        // originalFileName[0] = req.params.blogId
+        // const newFileName = originalFileName.join('.')
+        // createBlogCover(newFileName, req.file.buffer)
         const blogs = await getBlogs()
         const index = blogs.findIndex(blog => blog.id === req.params.blogId)
-        blogs[index] = {...blogs[index], cover: `http://127.0.0.1:3001/blog-covers/${newFileName}`}
+        blogs[index] = {...blogs[index], cover: `${req.file.path}`}
         await writeBlogs(blogs)
         res.send(blogs[index])
     } catch (error) {
