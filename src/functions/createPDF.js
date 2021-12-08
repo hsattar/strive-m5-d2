@@ -13,15 +13,12 @@ const getPDFReadableStream = blog => {
 
     const docDefinition = {
         info: {
-            title: 'awesome Document',
-            author: 'john doe',
-            subject: 'subject of document',
-          },
+            title: `${blog.title}`,
+            author: `${blog.author.name}`
+        },
         content: [
-            {text: 'First paragraph', style: 'header', margin: [0, 20]},
-            'Second Pargajdsklfjsklfjskl',
-            'Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines lkjiewjoikdensjlfsdiljfldsk fisodj foissflj dslfjdsi',
-            'jdilshfk dsfl '
+            {text: `${blog.title}`, style: 'header', margin: [0, 20]},
+            `${blog.content}`
         ],
         styles: {
             header: {
