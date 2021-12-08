@@ -9,6 +9,8 @@ import multer from 'multer'
 import { v2 as cloudinary } from 'cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
 import { pipeline } from 'stream'
+import base64 from 'base-64'
+import utf8 from 'utf8'
 
 const blogRoutes = express.Router()
 
@@ -170,23 +172,6 @@ blogRoutes.route('/:blogId/comments')
         }
     })
 
-// blogRoutes.get('/downloadPDF', async (req, res, next) => {
-//     try {
-//         // res.setHeader('Content-Disposition', `filename=test.pdf`)
-//         // const source = getPDFReadableStream()
-//         // const destination = res
-//         // pipeline(source, destination, err => {
-//         //     if (err) {
-//         //         console.log(err)
-//         //         // next(err)
-//         //     }
-//         // })
-//         res.send('pdf')
-//     } catch (error) {
-//         next(error)
-//     }
-// })
-
 
 blogRoutes.get('/:blogId/downloadPDF', async (req, res, next) => {
     try {
@@ -194,9 +179,8 @@ blogRoutes.get('/:blogId/downloadPDF', async (req, res, next) => {
         const blog = blogs.filter(blog => blog.id === req.params.blogId)
         if (!blog) return next(createHttpError(404, 'This Blog Does Not Exist'))
         res.setHeader('Content-Disposition', `attachment; filename=${blog[0].title}.pdf`)
-        const source = getPDFReadableStream(blog[0])
-        const destination = res
-        pipeline(source, destination, err => {
+        const source = await getPDFReadableStream(blog[0])
+        pipeline(source, res, err => {
             if (err) {
                 console.log(err)
                 next(err)
@@ -204,7 +188,7 @@ blogRoutes.get('/:blogId/downloadPDF', async (req, res, next) => {
         })
     } catch (error) {
         next(error)
-        console.log(error)
+        // console.log(error)
     }
 })
 
