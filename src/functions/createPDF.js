@@ -25,14 +25,14 @@ export const generateBlogPDF = async (blog) => {
     // const [id, extension] = fileName.split(".");
     const base64 = response.data.toString("base64");
     const base64Image = `data:image/jpeg;base64,${base64}`;
-    imagePart = { image: base64Image, fit: [500, 500], margin: [0, 20] };
+    imagePart = { image: base64Image, fit: [500, 500], margin: [0, 30] };
   }
 
   const docDefinition = {
     content: [
       imagePart,
-      { text: blog.title, fontSize: 20, bold: true, margin: [0, 0, 0, 40] },
-      { text: blog.content, lineHeight: 2 },
+      { text: blog.title, fontSize: 20, bold: true, margin: [0, 0, 0, 30] },
+      { text: blog.content, lineHeight: 1.75 },
     ],
   }
 
