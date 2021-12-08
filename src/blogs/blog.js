@@ -4,9 +4,11 @@ import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
 import { blogsBodyValidator, blogCommentValidator } from '../middlewares/validation.js'
 import { getBlogs, writeBlogs, createBlogCover, getAuthors } from '../functions/fs-funcs.js'
+import getPDFReadableStream from '../functions/createPDF.js'
 import multer from 'multer'
 import { v2 as cloudinary } from 'cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
+import { pipeline } from 'stream'
 
 const blogRoutes = express.Router()
 
@@ -167,5 +169,43 @@ blogRoutes.route('/:blogId/comments')
             next(error)
         }
     })
+
+// blogRoutes.get('/downloadPDF', async (req, res, next) => {
+//     try {
+//         // res.setHeader('Content-Disposition', `filename=test.pdf`)
+//         // const source = getPDFReadableStream()
+//         // const destination = res
+//         // pipeline(source, destination, err => {
+//         //     if (err) {
+//         //         console.log(err)
+//         //         // next(err)
+//         //     }
+//         // })
+//         res.send('pdf')
+//     } catch (error) {
+//         next(error)
+//     }
+// })
+
+
+blogRoutes.get('/:blogId/downloadPDF', async (req, res, next) => {
+    try {
+        const blogs = await getBlogs()
+        const blog = blogs.filter(blog => blog.id === req.params.blogId)
+        if (!blog) return next(createHttpError(404, 'This Blog Does Not Exist'))
+        res.setHeader('Content-Disposition', `attachment; filename=${blog[0].title}.pdf`)
+        const source = getPDFReadableStream(blog[0])
+        const destination = res
+        pipeline(source, destination, err => {
+            if (err) {
+                console.log(err)
+                next(err)
+            }
+        })
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+})
 
 export default blogRoutes
