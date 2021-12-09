@@ -1,10 +1,12 @@
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import createHttpError from 'http-errors'
-import { getAuthors, writeAuthors, getBlogs, createAuthorAvatar, writeBlogs } from '../functions/fs-funcs.js'
+import { getAuthors, writeAuthors, getBlogs, createAuthorAvatar, writeBlogs, getAuthorsStream } from '../functions/fs-funcs.js'
 import multer from 'multer'
 import { v2 as cloudinary } from 'cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
+import { pipeline } from 'stream'
+import json2csv from 'json2csv'
 
 const authorRoutes = express.Router()
 
@@ -29,6 +31,24 @@ authorRoutes.route('/')
         await writeAuthors(authors)
         res.status(201).send(newUser)    
     })
+
+authorRoutes.get('/downloadCSV', async (req, res, next) => {
+    try {
+        res.setHeader('Content-Disposition', 'attachment; fileName=authors.csv')
+        const source = await getAuthorsStream()
+        const transform = new json2csv.Transform({ fields: ['name', 'surname', 'email'] })
+        pipeline(source, transform, res, err => {
+            if (err) {
+                console.log(err)
+                next(err)
+            }
+        })
+
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+})
 
 
 // SPECIFIC AUTHOR ROUTE - GET, PUT, DELETE
