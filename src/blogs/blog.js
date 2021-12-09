@@ -9,6 +9,7 @@ import multer from 'multer'
 import { v2 as cloudinary } from 'cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
 import { pipeline } from 'stream'
+import { sendTestEmail } from '../functions/send-emails.js'
 
 const blogRoutes = express.Router()
 
@@ -62,6 +63,17 @@ blogRoutes.route('/')
             console.log(error)
         }
     })
+
+
+blogRoutes.post('/testEmail', async (req, res, next) => {
+    try {
+        sendTestEmail(req.body)
+        res.send('OK')
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 
 blogRoutes.route('/:blogId')
     .get( async (req, res, next) => {
