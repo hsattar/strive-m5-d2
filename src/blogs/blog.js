@@ -9,7 +9,7 @@ import multer from 'multer'
 import { v2 as cloudinary } from 'cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
 import { pipeline } from 'stream'
-import { sendTestEmail } from '../functions/send-emails.js'
+import { sendTestEmail, sendNewBlogCreatedEmail } from '../functions/send-emails.js'
 
 const blogRoutes = express.Router()
 
@@ -38,8 +38,12 @@ blogRoutes.route('/')
             const authorNames = req.body.author.name.split(' ')
             const authors = await getAuthors()
             const authorExists = authors.find(author => req.body.author.name === `${author.name} ${author.surname}`)
+            let email = null
             let authorAvatar = null
-            if (authorExists) authorAvatar = authorExists.avatar
+            if (authorExists) {
+                email = authorExists.email
+                authorAvatar = authorExists.avatar 
+            }
             const newBlog = {
                 id: uuidv4(),
                 ...req.body,
@@ -55,8 +59,10 @@ blogRoutes.route('/')
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
+            // console.log({authorExists, newBlog})
             blogs.push(newBlog)
             await writeBlogs(blogs)
+            await sendNewBlogCreatedEmail(email, newBlog)
             res.status(201).send(newBlog)
         } catch (error) {
             next(error)
