@@ -19,7 +19,7 @@ export const sendTestEmail = async data => {
 }
 
 
-export const sendNewBlogCreatedEmail = async (email, blog) => {
+export const sendNewBlogCreatedEmail = (email, blog) => {
 
     fs.readFile(('./src/data/test.pdf'), async (err, data) => {
         if (err) console.log(err)

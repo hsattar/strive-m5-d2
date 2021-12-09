@@ -11,6 +11,7 @@ const blogsJSONPath = join(dataFolderPath, 'blogs.json')
 export const publicFolderPath = join(process.cwd(), 'public')
 const authorAvatarsPath = join(publicFolderPath, 'author-avatars')
 const blogCoversPath = join(publicFolderPath, 'blog-covers')
+export const blogPDFsPath = join(publicFolderPath, 'blog-pdfs')
 
 export const getBlogs = () => readJSON(blogsJSONPath)
 export const writeBlogs = content => writeJSON(blogsJSONPath, content)

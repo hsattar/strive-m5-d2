@@ -4,7 +4,7 @@ import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
 import { blogsBodyValidator, blogCommentValidator } from '../middlewares/validation.js'
 import { getBlogs, writeBlogs, createBlogCover, getAuthors } from '../functions/fs-funcs.js'
-import { generateBlogPDF } from '../functions/createPDF.js'
+import { generateBlogPDF, blogPDFAsync } from '../functions/createPDF.js'
 import multer from 'multer'
 import { v2 as cloudinary } from 'cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
@@ -61,6 +61,9 @@ blogRoutes.route('/')
             }
             blogs.push(newBlog)
             await writeBlogs(blogs)
+
+            // const path = await blogPDFAsync(newBlog)
+
             await sendNewBlogCreatedEmail(email, newBlog)
             res.status(201).send(newBlog)
         } catch (error) {
