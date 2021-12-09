@@ -38,7 +38,7 @@ blogRoutes.route('/')
             const authorNames = req.body.author.name.split(' ')
             const authors = await getAuthors()
             const authorExists = authors.find(author => req.body.author.name === `${author.name} ${author.surname}`)
-            let email = null
+            let email = `${process.env.DEFAULT_EMAIL}`
             let authorAvatar = null
             if (authorExists) {
                 email = authorExists.email
@@ -59,7 +59,6 @@ blogRoutes.route('/')
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
-            // console.log({authorExists, newBlog})
             blogs.push(newBlog)
             await writeBlogs(blogs)
             await sendNewBlogCreatedEmail(email, newBlog)

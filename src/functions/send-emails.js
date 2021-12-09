@@ -29,7 +29,7 @@ export const sendNewBlogCreatedEmail = async (email, blog) => {
             <img src=${blog.cover} />
             <h2>${blog.title}</h2>
             <p>${blog.content}</p>
-            <a href=\`https://hs-strive-blogs.vercel.app/blogs/${blog.id}\`>View The Blog</a>
+            <a href=\`https://hs-strive-blogs.vercel.app/blog/${blog.id}\`>View The Blog</a>
             `
     }
 
